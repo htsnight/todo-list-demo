@@ -1,14 +1,8 @@
 package org.example.todolistdemo.todo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -27,6 +21,15 @@ public class TodoItem {
 
     @Column(nullable = false)
     private boolean completed = false;
+
+    @Column(nullable = false, length = 40)
+    private String category = "general";
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private TodoPriority priority = TodoPriority.MEDIUM;
+
+    private LocalDate dueDate;
 
     @Column(nullable = false)
     private OffsetDateTime createdAt;
@@ -74,6 +77,30 @@ public class TodoItem {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public TodoPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(TodoPriority priority) {
+        this.priority = priority;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
     public OffsetDateTime getCreatedAt() {

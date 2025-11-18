@@ -31,5 +31,13 @@ public class GlobalExceptionHandler {
         detail.setProperty("errors", errors);
         return detail;
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
+        ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        detail.setTitle("非法参数");
+        detail.setDetail(ex.getMessage());
+        return detail;
+    }
 }
 

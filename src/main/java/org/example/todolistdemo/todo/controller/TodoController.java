@@ -4,16 +4,9 @@ import jakarta.validation.Valid;
 import org.example.todolistdemo.todo.dto.TodoItemRequest;
 import org.example.todolistdemo.todo.dto.TodoItemResponse;
 import org.example.todolistdemo.todo.service.TodoService;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,8 +21,12 @@ public class TodoController {
     }
 
     @GetMapping
-    public List<TodoItemResponse> list() {
-        return todoService.findAll();
+    public List<TodoItemResponse> list(
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+        Sort.Direction dir = parseDirection(direction);
+        return todoService.findAll(sortBy, dir);
     }
 
     @PostMapping
@@ -47,6 +44,14 @@ public class TodoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         todoService.delete(id);
+    }
+
+    private Sort.Direction parseDirection(String value) {
+        try {
+            return Sort.Direction.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("direction 仅支持 asc/desc");
+        }
     }
 }
 
