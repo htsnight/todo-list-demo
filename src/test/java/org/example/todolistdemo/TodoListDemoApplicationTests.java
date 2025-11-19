@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +43,8 @@ class TodoListDemoApplicationTests {
                 null,
                 CategoryPreset.WORK,
                 TodoPriority.HIGH,
-                LocalDate.now().plusDays(1));
+                LocalDate.now().plusDays(1),
+                OffsetDateTime.now().plusMinutes(30));
         TodoItemResponse created = createTodo(request);
 
         TodoItemRequest another = new TodoItemRequest(
@@ -51,7 +53,8 @@ class TodoListDemoApplicationTests {
                 "学习",
                 null,
                 TodoPriority.LOW,
-                LocalDate.now());
+                LocalDate.now(),
+                OffsetDateTime.now().plusMinutes(90));
         TodoItemResponse second = createTodo(another);
 
         String listJson = mockMvc.perform(get("/api/todos?sortBy=dueDate&direction=asc"))
@@ -63,6 +66,16 @@ class TodoListDemoApplicationTests {
                 objectMapper.readerForListOf(TodoItemResponse.class).readValue(listJson);
         assertThat(todos).extracting(TodoItemResponse::category).contains("工作", "学习");
         assertThat(todos.get(0).id()).isEqualTo(second.id());
+
+        String reminderJson = mockMvc.perform(get("/api/todos/upcoming-reminders")
+                        .param("minutes", "60"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        List<TodoItemResponse> upcoming =
+                objectMapper.readerForListOf(TodoItemResponse.class).readValue(reminderJson);
+        assertThat(upcoming).extracting(TodoItemResponse::id).contains(created.id());
 
         String toggleJson = mockMvc.perform(patch("/api/todos/{id}/toggle", created.id()))
                 .andExpect(status().isOk())

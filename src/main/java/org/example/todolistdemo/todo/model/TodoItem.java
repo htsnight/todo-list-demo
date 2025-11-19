@@ -31,6 +31,8 @@ public class TodoItem {
 
     private LocalDate dueDate;
 
+    private OffsetDateTime reminderAt;
+
     @Column(nullable = false)
     private OffsetDateTime createdAt;
 
@@ -101,6 +103,14 @@ public class TodoItem {
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public OffsetDateTime getReminderAt() {
+        return reminderAt;
+    }
+
+    public void setReminderAt(OffsetDateTime reminderAt) {
+        this.reminderAt = reminderAt;
     }
 
     public OffsetDateTime getCreatedAt() {

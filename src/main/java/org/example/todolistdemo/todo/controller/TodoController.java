@@ -29,6 +29,13 @@ public class TodoController {
         return todoService.findAll(sortBy, dir);
     }
 
+    @GetMapping("/upcoming-reminders")
+    public List<TodoItemResponse> upcomingReminders(
+            @RequestParam(defaultValue = "60") Long minutes
+    ) {
+        return todoService.upcomingReminders(minutes);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TodoItemResponse create(@Valid @RequestBody TodoItemRequest request) {

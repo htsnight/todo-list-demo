@@ -13,6 +13,7 @@ public record TodoItemResponse(
         String category,
         TodoPriority priority,
         LocalDate dueDate,
+        OffsetDateTime reminderAt,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {

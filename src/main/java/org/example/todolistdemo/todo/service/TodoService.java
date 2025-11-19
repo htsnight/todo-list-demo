@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -35,6 +36,7 @@ public class TodoService {
         entity.setCategory(resolveCategory(request.category(), request.presetCategory()));
         entity.setPriority(TodoPriority.fromNullable(request.priority()));
         entity.setDueDate(request.dueDate());
+        entity.setReminderAt(request.reminderAt());
         return toResponse(repository.save(entity));
     }
 
@@ -53,6 +55,18 @@ public class TodoService {
         repository.deleteById(id);
     }
 
+    public List<TodoItemResponse> upcomingReminders(long minutesAhead) {
+        if (minutesAhead <= 0) {
+            throw new IllegalArgumentException("minutes 参数必须大于 0");
+        }
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime end = now.plusMinutes(minutesAhead);
+        return repository.findByCompletedFalseAndReminderAtBetween(now, end)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private TodoItemResponse toResponse(TodoItem entity) {
         return new TodoItemResponse(
                 entity.getId(),
@@ -62,6 +76,7 @@ public class TodoService {
                 entity.getCategory(),
                 entity.getPriority(),
                 entity.getDueDate(),
+                entity.getReminderAt(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );

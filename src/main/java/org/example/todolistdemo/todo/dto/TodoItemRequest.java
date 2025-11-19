@@ -6,6 +6,7 @@ import org.example.todolistdemo.todo.model.CategoryPreset;
 import org.example.todolistdemo.todo.model.TodoPriority;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 public record TodoItemRequest(
         @NotBlank(message = "标题不能为空")
@@ -17,7 +18,8 @@ public record TodoItemRequest(
         String category,
         CategoryPreset presetCategory,
         TodoPriority priority,
-        LocalDate dueDate
+        LocalDate dueDate,
+        OffsetDateTime reminderAt
 ) {
 }
 
