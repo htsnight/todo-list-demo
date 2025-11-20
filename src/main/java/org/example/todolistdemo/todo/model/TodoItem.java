@@ -1,9 +1,17 @@
+/*
+ * Author: 海天石
+ * Email : htsnight@163.com
+ */
 package org.example.todolistdemo.todo.model;
 
 import jakarta.persistence.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "todo_items")
@@ -32,6 +40,21 @@ public class TodoItem {
     private LocalDate dueDate;
 
     private OffsetDateTime reminderAt;
+
+    @ElementCollection
+    @CollectionTable(name = "todo_reminder_offsets", joinColumns = @JoinColumn(name = "todo_id"))
+    @Column(name = "offset_minutes")
+    private List<Integer> reminderOffsetsMinutes = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private ReminderRecurrence recurrence = ReminderRecurrence.NONE;
+
+    private Integer recurrenceIntervalMinutes;
+
+    private DayOfWeek recurrenceDayOfWeek;
+
+    private LocalTime recurrenceTime;
 
     @Column(nullable = false)
     private OffsetDateTime createdAt;
@@ -111,6 +134,50 @@ public class TodoItem {
 
     public void setReminderAt(OffsetDateTime reminderAt) {
         this.reminderAt = reminderAt;
+    }
+
+    public List<Integer> getReminderOffsetsMinutes() {
+        return reminderOffsetsMinutes;
+    }
+
+    public void setReminderOffsetsMinutes(List<Integer> reminderOffsetsMinutes) {
+        if (reminderOffsetsMinutes == null) {
+            this.reminderOffsetsMinutes = new ArrayList<>();
+        } else {
+            this.reminderOffsetsMinutes = new ArrayList<>(reminderOffsetsMinutes);
+        }
+    }
+
+    public ReminderRecurrence getRecurrence() {
+        return recurrence;
+    }
+
+    public void setRecurrence(ReminderRecurrence recurrence) {
+        this.recurrence = recurrence;
+    }
+
+    public Integer getRecurrenceIntervalMinutes() {
+        return recurrenceIntervalMinutes;
+    }
+
+    public void setRecurrenceIntervalMinutes(Integer recurrenceIntervalMinutes) {
+        this.recurrenceIntervalMinutes = recurrenceIntervalMinutes;
+    }
+
+    public DayOfWeek getRecurrenceDayOfWeek() {
+        return recurrenceDayOfWeek;
+    }
+
+    public void setRecurrenceDayOfWeek(DayOfWeek recurrenceDayOfWeek) {
+        this.recurrenceDayOfWeek = recurrenceDayOfWeek;
+    }
+
+    public LocalTime getRecurrenceTime() {
+        return recurrenceTime;
+    }
+
+    public void setRecurrenceTime(LocalTime recurrenceTime) {
+        this.recurrenceTime = recurrenceTime;
     }
 
     public OffsetDateTime getCreatedAt() {

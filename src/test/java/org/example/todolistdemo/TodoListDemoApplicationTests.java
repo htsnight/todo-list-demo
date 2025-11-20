@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.todolistdemo.todo.dto.TodoItemRequest;
 import org.example.todolistdemo.todo.dto.TodoItemResponse;
 import org.example.todolistdemo.todo.model.CategoryPreset;
+import org.example.todolistdemo.todo.model.ReminderRecurrence;
 import org.example.todolistdemo.todo.model.TodoPriority;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -44,7 +47,11 @@ class TodoListDemoApplicationTests {
                 CategoryPreset.WORK,
                 TodoPriority.HIGH,
                 LocalDate.now().plusDays(1),
-                OffsetDateTime.now().plusMinutes(30));
+                OffsetDateTime.now().plusMinutes(30),
+                List.of(1440, 30),
+                ReminderRecurrence.DAILY,
+                null,
+                LocalTime.of(9, 0));
         TodoItemResponse created = createTodo(request);
 
         TodoItemRequest another = new TodoItemRequest(
@@ -54,7 +61,12 @@ class TodoListDemoApplicationTests {
                 null,
                 TodoPriority.LOW,
                 LocalDate.now(),
-                OffsetDateTime.now().plusMinutes(90));
+                OffsetDateTime.now().plusMinutes(90),
+                List.of(),
+                ReminderRecurrence.WEEKLY,
+                null,
+                DayOfWeek.MONDAY,
+                LocalTime.of(10, 0));
         TodoItemResponse second = createTodo(another);
 
         String listJson = mockMvc.perform(get("/api/todos?sortBy=dueDate&direction=asc"))

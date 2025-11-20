@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface TodoItemRepository extends JpaRepository<TodoItem, Long> {
     List<TodoItem> findByCompletedFalseAndReminderAtBetween(OffsetDateTime start, OffsetDateTime end);
+
+    List<TodoItem> findByCompletedFalse();
 }
 

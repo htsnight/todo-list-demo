@@ -1,12 +1,18 @@
 package org.example.todolistdemo.todo.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.example.todolistdemo.todo.model.CategoryPreset;
+import org.example.todolistdemo.todo.model.ReminderRecurrence;
 import org.example.todolistdemo.todo.model.TodoPriority;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public record TodoItemRequest(
         @NotBlank(message = "标题不能为空")
@@ -19,7 +25,12 @@ public record TodoItemRequest(
         CategoryPreset presetCategory,
         TodoPriority priority,
         LocalDate dueDate,
-        OffsetDateTime reminderAt
+        OffsetDateTime reminderAt,
+        List<@PositiveOrZero(message = "提醒偏移必须为非负数") Integer> reminderOffsetsMinutes,
+        ReminderRecurrence recurrence,
+        @PositiveOrZero(message = "重复间隔需为非负数") Integer recurrenceIntervalMinutes,
+        DayOfWeek recurrenceDayOfWeek,
+        LocalTime recurrenceTime
 ) {
 }
 
