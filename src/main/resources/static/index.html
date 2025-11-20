@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>TODO 清单</title>
+    <style>
+        :root {
+            font-family: "SF Pro Display", "SF Pro Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1c1c1e;
+            background-color: #f5f5f7;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, rgba(255,255,255,0.9), #f5f5f7 55%);
+            color: inherit;
+        }
+        header {
+            text-align: center;
+            padding: 64px 24px 32px;
+        }
+        header h1 {
+            font-size: 40px;
+            font-weight: 600;
+            margin: 0 0 12px;
+            letter-spacing: -0.5px;
+        }
+        header p {
+            font-size: 18px;
+            color: #6e6e73;
+            margin: 0 auto;
+            max-width: 560px;
+            line-height: 1.5;
+        }
+        .content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px 64px;
+        }
+        main {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 32px;
+        }
+        .panel {
+            background: rgba(255, 255, 255, 0.93);
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
+            backdrop-filter: blur(6px);
+        }
+        .panel h2 {
+            margin-top: 0;
+            font-size: 22px;
+            font-weight: 600;
+            color: #111;
+        }
+        form label {
+            display: block;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6e6e73;
+            margin-bottom: 6px;
+        }
+        form input,
+        form textarea,
+        form select {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            border-radius: 14px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.8);
+            font-size: 15px;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+        form input:focus,
+        form textarea:focus,
+        form select:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.12);
+        }
+        form button,
+        .toolbar button,
+        .toggle-btn,
+        .delete-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1f80ff, #5171ff);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        form button:hover,
+        .toolbar button:hover,
+        .toggle-btn:hover,
+        .delete-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(31,128,255,0.3);
+        }
+        .delete-btn {
+            background: rgba(28,28,30,0.08);
+            color: #111;
+        }
+        .delete-btn:hover {
+            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .toolbar label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #6e6e73;
+            letter-spacing: 0.08em;
+        }
+        .toolbar select {
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 12px 18px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.7);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 14px;
+        }
+        th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6e6e73;
+            padding-bottom: 8px;
+        }
+        tbody tr {
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.12);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+        tbody tr:hover {
+            transform: translateY(-2px);
+        }
+        td {
+            padding: 18px 16px;
+            font-size: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+        tbody tr td:first-child { border-top-left-radius: 18px; border-bottom-left-radius: 18px; }
+        tbody tr td:last-child { border-top-right-radius: 18px; border-bottom-right-radius: 18px; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr.completed {
+            opacity: 0.55;
+            text-decoration: line-through;
+        }
+        .desc-icon {
+            display: inline-flex;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.06);
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+            font-size: 12px;
+            cursor: default;
+        }
+        .desc-icon span {
+            opacity: 0.6;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            letter-spacing: 0.02em;
+        }
+        .badge.work { background: rgba(82,109,255,0.12); color: #2f3ec9; }
+        .badge.study { background: rgba(16,185,129,0.1); color: #047857; }
+        .badge.life { background: rgba(245,158,11,0.12); color: #b45309; }
+        .badge.health { background: rgba(239,68,68,0.12); color: #b91c1c; }
+        .badge.personal { background: rgba(147,51,234,0.12); color: #7e22ce; }
+        .badge.general { background: rgba(156,163,175,0.2); color: #374151; }
+        .priority-high { color: #b91c1c; font-weight: 600; }
+        .priority-medium { color: #2563eb; font-weight: 600; }
+        .priority-low { color: #15803d; font-weight: 600; }
+        .title.has-desc {
+            position: relative;
+            cursor: pointer;
+        }
+        .title.has-desc::after {
+            content: '✦';
+            font-size: 11px;
+            margin-left: 6px;
+            color: #7c3aed;
+        }
+        .feedback {
+            margin-bottom: 18px;
+            padding: 14px 18px;
+            border-radius: 20px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .feedback.show { display: block; }
+        .feedback.success { background: rgba(16,185,129,0.12); color: #047857; }
+        .feedback.error { background: rgba(239,68,68,0.12); color: #b91c1c; }
+        .hidden {
+            display: none !important;
+        }
+        .reminder-toggle {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 18px 0 6px;
+        }
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+        .toggle input {
+            display: none;
+        }
+        .toggle span {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.15);
+            transition: background 0.2s ease;
+        }
+        .toggle span::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            top: 2px;
+            left: 2px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease;
+        }
+        .toggle input:checked + span {
+            background: linear-gradient(135deg, #1f80ff, #5171ff);
+        }
+        .toggle input:checked + span::after {
+            transform: translateX(22px);
+        }
+        .mode-switch {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .mode-switch button {
+            border: none;
+            border-radius: 16px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.05);
+            color: #1f2933;
+            font-weight: 500;
+        }
+        .mode-switch button.active {
+            background: linear-gradient(135deg, #1f80ff, #5171ff);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(31, 128, 255, 0.25);
+        }
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .chip {
+            border: none;
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            background: rgba(0,0,0,0.06);
+            color: #374151;
+        }
+        .chip.active {
+            background: rgba(31,128,255,0.15);
+            color: #1d4ed8;
+            box-shadow: inset 0 0 0 1px rgba(31,128,255,0.4);
+        }
+        .chip.custom {
+            background: rgba(79,70,229,0.2);
+            color: #4338ca;
+        }
+        .reminder-toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            min-width: 280px;
+            padding: 18px 22px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #ff8a7a, #ff4d6d);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 25px 45px rgba(255, 77, 109, 0.35);
+            display: none;
+        }
+        .reminder-toast.show {
+            display: block;
+            animation: fadeSlide 0.3s ease, pulse 1.2s ease infinite alternate;
+        }
+        .desc-tooltip {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2000;
+            max-width: 280px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.92);
+            color: #f8fafc;
+            font-size: 13px;
+            line-height: 1.5;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+            display: none;
+        }
+        .desc-tooltip.show {
+            display: block;
+        }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            from { box-shadow: 0 15px 35px rgba(255, 77, 109, 0.3); }
+            to { box-shadow: 0 25px 45px rgba(255, 77, 109, 0.5); }
+        }
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 16px;
+            }
+            .content {
+                padding: 0 16px 48px;
+            }
+            .panel {
+                padding: 24px;
+            }
+            header h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Focus Studio</h1>
+        <p>用最简洁的界面管理工作、学习与生活，预设分类与优先级让重要事项一目了然。</p>
+    </header>
+    <div class="content">
+        <main>
+            <section class="panel">
+            <h2>创建任务</h2>
+            <form id="createForm">
+                <label for="titleInput">标题</label>
+                <input id="titleInput" name="title" placeholder="请输入任务标题" required maxlength="120">
+
+                <label for="descriptionInput">描述（可选）</label>
+                <textarea id="descriptionInput" name="description" rows="3" maxlength="2000"
+                          placeholder="补充细节..."></textarea>
+
+                <label for="presetCategory">预设分类</label>
+                <select id="presetCategory" name="presetCategory">
+                    <option value="">（不使用预设）</option>
+                </select>
+
+                <label for="customCategory">自定义分类</label>
+                <input id="customCategory" name="category" placeholder="输入自定义分类，例如 客户A" maxlength="40">
+
+                <label for="prioritySelect">优先级</label>
+                <select id="prioritySelect" name="priority">
+                    <option value="">默认（MEDIUM）</option>
+                    <option value="HIGH">高</option>
+                    <option value="MEDIUM">中</option>
+                    <option value="LOW">低</option>
+                </select>
+
+                <label for="dueDateInput">截止日期</label>
+                <input id="dueDateInput" type="date" name="dueDate">
+
+                <div class="reminder-toggle">
+                    <label class="toggle">
+                        <input id="enableReminder" type="checkbox">
+                        <span></span>
+                    </label>
+                    <div>
+                        <strong>提醒设置</strong>
+                        <div style="font-size:12px;color:#6e6e73;">开启后可选择提前提醒和重复策略</div>
+                    </div>
+                </div>
+
+                <div id="reminderSection" class="hidden">
+                    <label for="reminderInput">提醒时间</label>
+                    <input id="reminderInput" type="datetime-local" name="reminderAt">
+
+                    <label>提前提醒</label>
+                    <div class="chip-group" id="presetOffsets">
+                        <button type="button" class="chip" data-offset="0">准时</button>
+                        <button type="button" class="chip" data-offset="10">提前 10 分钟</button>
+                        <button type="button" class="chip" data-offset="30">提前 30 分钟</button>
+                        <button type="button" class="chip" data-offset="60">提前 1 小时</button>
+                        <button type="button" class="chip" data-offset="1440">提前 1 天</button>
+                    </div>
+                    <input id="customOffset" type="number" min="0" placeholder="自定义分钟后按回车添加">
+                    <div class="chip-group" id="customOffsetsContainer"></div>
+
+                    <label>重复方式</label>
+                    <div class="mode-switch" id="reminderModes">
+                        <button type="button" data-reminder-mode="single" class="active">不重复</button>
+                        <button type="button" data-reminder-mode="interval">循环</button>
+                        <button type="button" data-reminder-mode="daily">每天</button>
+                        <button type="button" data-reminder-mode="weekly">每周</button>
+                    </div>
+
+                    <div id="intervalFields" class="hidden" data-mode-fields="interval">
+                        <label for="intervalMinutes">每隔（分钟）</label>
+                        <input id="intervalMinutes" type="number" min="1" placeholder="例如 30">
+                        <div style="font-size:12px;color:#6b7280;">循环提醒以提醒时间为起点，按设置间隔重复。</div>
+                    </div>
+
+                    <div id="dailyFields" class="hidden" data-mode-fields="daily weekly">
+                        <label for="recurrenceTime">重复提醒时间</label>
+                        <input id="recurrenceTime" type="time" name="recurrenceTime">
+                    </div>
+
+                    <div id="weeklyFields" class="hidden" data-mode-fields="weekly">
+                        <label for="recurrenceDay">重复日期（周）</label>
+                        <select id="recurrenceDay" name="recurrenceDay">
+                            <option value="">选择星期</option>
+                            <option value="MONDAY">周一</option>
+                            <option value="TUESDAY">周二</option>
+                            <option value="WEDNESDAY">周三</option>
+                            <option value="THURSDAY">周四</option>
+                            <option value="FRIDAY">周五</option>
+                            <option value="SATURDAY">周六</option>
+                            <option value="SUNDAY">周日</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit">添加任务</button>
+            </form>
+            </section>
+
+            <section class="panel">
+                <div class="toolbar">
+                    <div>
+                        <label for="sortBy">排序字段</label>
+                        <select id="sortBy">
+                            <option value="dueDate">截止日期</option>
+                            <option value="priority">优先级</option>
+                            <option value="createdAt">创建时间</option>
+                            <option value="updatedAt">更新时间</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="direction">方向</label>
+                        <select id="direction">
+                            <option value="asc">升序</option>
+                            <option value="desc">降序</option>
+                        </select>
+                    </div>
+                    <button id="refreshBtn" type="button">刷新列表</button>
+                </div>
+
+                <div id="feedback" class="feedback"></div>
+
+                <table>
+                    <thead>
+                    <tr>
+                    <th>标题</th>
+                        <th>分类</th>
+                        <th>优先级</th>
+                        <th>截止日期</th>
+                        <th>提醒策略</th>
+                        <th>提醒</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="todoBody">
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <div id="reminderToast" class="reminder-toast"></div>
+    <div id="descTooltip" class="desc-tooltip"></div>
+
+    <template id="rowTemplate">
+        <tr>
+            <td class="title"></td>
+            <td class="category"></td>
+            <td class="priority"></td>
+            <td class="due-date"></td>
+            <td class="recurrence"></td>
+            <td class="reminder"></td>
+            <td class="status">
+                <button class="toggle-btn" type="button"></button>
+            </td>
+            <td>
+                <button class="delete-btn" type="button">删除</button>
+            </td>
+        </tr>
+    </template>
+
+    <script>
+        const apiBase = '/api/todos';
+        const categoryMetaUrl = '/api/todos/meta/categories';
+
+        const form = document.getElementById('createForm');
+        const tableBody = document.getElementById('todoBody');
+        const rowTemplate = document.getElementById('rowTemplate');
+        const presetSelect = document.getElementById('presetCategory');
+        const customCategory = document.getElementById('customCategory');
+        const sortBySelect = document.getElementById('sortBy');
+        const directionSelect = document.getElementById('direction');
+        const feedback = document.getElementById('feedback');
+        const reminderToast = document.getElementById('reminderToast');
+
+        const reminderSection = document.getElementById('reminderSection');
+        const enableReminder = document.getElementById('enableReminder');
+        const reminderInput = document.getElementById('reminderInput');
+        const presetOffsetButtons = document.querySelectorAll('#presetOffsets [data-offset]');
+        const customOffsetInput = document.getElementById('customOffset');
+        const customOffsetsContainer = document.getElementById('customOffsetsContainer');
+        const reminderModeButtons = document.querySelectorAll('[data-reminder-mode]');
+        const modeFields = document.querySelectorAll('[data-mode-fields]');
+        const intervalInput = document.getElementById('intervalMinutes');
+        const recurrenceDay = document.getElementById('recurrenceDay');
+        const recurrenceTimeInput = document.getElementById('recurrenceTime');
+
+        const reminderTimers = new Map();
+        const selectedOffsets = new Set();
+        let reminderMode = 'single';
+
+        document.getElementById('refreshBtn').addEventListener('click', loadTodos);
+        form.addEventListener('submit', handleCreate);
+        enableReminder.addEventListener('change', toggleReminderSection);
+        reminderModeButtons.forEach(btn =>
+            btn.addEventListener('click', () => selectReminderMode(btn.dataset.reminderMode)));
+        presetOffsetButtons.forEach(btn =>
+            btn.addEventListener('click', () => toggleOffset(btn)));
+        customOffsetInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addCustomOffset();
+            }
+        });
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(categoryMetaUrl);
+                if (!res.ok) throw new Error('加载预设分类失败');
+                const options = await res.json();
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.code;
+                    opt.textContent = option.label;
+                    presetSelect.append(opt);
+                });
+            } catch (err) {
+                showFeedback(err.message, 'error');
+            }
+        }
+
+        async function loadTodos() {
+            try {
+                const params = new URLSearchParams({
+                    sortBy: sortBySelect.value,
+                    direction: directionSelect.value
+                });
+                const res = await fetch(`${apiBase}?${params.toString()}`);
+                if (!res.ok) throw new Error('获取任务列表失败');
+                const todos = await res.json();
+                renderTodos(todos);
+            } catch (err) {
+                showFeedback(err.message, 'error');
+            }
+        }
+
+        async function handleCreate(event) {
+            event.preventDefault();
+            const reminderConfig = buildReminderPayload();
+            if (!reminderConfig) {
+                return;
+            }
+            const payload = {
+                title: form.title.value.trim(),
+                description: form.description.value.trim(),
+                category: customCategory.value.trim() || null,
+                presetCategory: presetSelect.value || null,
+                priority: form.priority.value || null,
+                dueDate: form.dueDate.value || null,
+                ...reminderConfig
+            };
+            sanitizePayload(payload);
+
+            try {
+                const res = await fetch(apiBase, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const detail = await res.json().catch(() => ({}));
+                    throw new Error(detail.detail || '创建任务失败');
+                }
+                form.reset();
+                presetSelect.value = '';
+                resetReminderUI();
+                showFeedback('任务创建成功', 'success');
+                await loadTodos();
+            } catch (err) {
+                showFeedback(err.message, 'error');
+            }
+        }
+
+        function sanitizePayload(payload) {
+            Object.keys(payload).forEach(key => {
+                if (payload[key] === null || payload[key] === '') {
+                    delete payload[key];
+                }
+            });
+        }
+
+        function renderTodos(todos) {
+            tableBody.innerHTML = '';
+            if (!todos.length) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 8;
+                cell.textContent = '暂无任务，创建一个吧～';
+                row.append(cell);
+                tableBody.append(row);
+                scheduleReminders([]);
+                return;
+            }
+            todos.forEach(todo => {
+                const row = rowTemplate.content.firstElementChild.cloneNode(true);
+                row.dataset.id = todo.id;
+                if (todo.completed) {
+                    row.classList.add('completed');
+                }
+                const titleCell = row.querySelector('.title');
+                titleCell.textContent = todo.title;
+                if (todo.description) {
+                    titleCell.classList.add('has-desc');
+                    titleCell.dataset.description = todo.description;
+                    titleCell.addEventListener('mouseenter', handleDescEnter);
+                    titleCell.addEventListener('mousemove', handleDescMove);
+                    titleCell.addEventListener('mouseleave', handleDescLeave);
+                }
+
+                const categoryCell = row.querySelector('.category');
+                const badge = document.createElement('span');
+                badge.className = `badge ${toBadgeClass(todo.category)}`;
+                badge.textContent = todo.category || 'general';
+                categoryCell.append(badge);
+
+                const priorityCell = row.querySelector('.priority');
+                priorityCell.textContent = todo.priority || 'MEDIUM';
+                priorityCell.className = `priority priority-${(todo.priority || 'MEDIUM').toLowerCase()}`;
+
+                row.querySelector('.due-date').textContent = formatDate(todo.dueDate);
+                row.querySelector('.recurrence').textContent = describeRecurrence(todo);
+                row.querySelector('.reminder').textContent = formatDateTime(todo.reminderAt);
+
+                const toggleBtn = row.querySelector('.toggle-btn');
+                toggleBtn.textContent = todo.completed ? '标记未完成' : '标记完成';
+                toggleBtn.addEventListener('click', () => toggleTodo(todo.id));
+
+                const deleteBtn = row.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+                tableBody.append(row);
+            });
+            scheduleReminders(todos);
+        }
+
+        function toBadgeClass(category) {
+            if (!category) return 'general';
+            const map = {
+                '工作': 'work',
+                '学习': 'study',
+                '生活': 'life',
+                '健康': 'health',
+                '个人提升': 'personal',
+                'general': 'general'
+            };
+            return map[category] || 'general';
+        }
+
+        async function toggleTodo(id) {
+            try {
+                const res = await fetch(`${apiBase}/${id}/toggle`, { method: 'PATCH' });
+                if (!res.ok) throw new Error('切换状态失败');
+                await loadTodos();
+            } catch (err) {
+                showFeedback(err.message, 'error');
+            }
+        }
+
+        async function deleteTodo(id) {
+            if (!confirm('确定要删除这条任务吗？')) return;
+            try {
+                const res = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('删除失败');
+                await loadTodos();
+            } catch (err) {
+                showFeedback(err.message, 'error');
+            }
+        }
+
+        function showFeedback(message, type) {
+            feedback.textContent = message;
+            feedback.className = `feedback show ${type}`;
+            setTimeout(() => feedback.classList.remove('show'), 3000);
+        }
+
+        function formatDate(value) {
+            if (!value) return '-';
+            return value;
+        }
+
+        function formatDateTime(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            return date.toLocaleString('zh-CN', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function scheduleReminders(todos) {
+            reminderTimers.forEach(timerList => timerList.forEach(id => clearTimeout(id)));
+            reminderTimers.clear();
+            const now = Date.now();
+            const limit = now + 24 * 60 * 60 * 1000;
+            todos.forEach(todo => {
+                if (todo.completed) return;
+                const times = collectReminderTimes(todo, now, limit);
+                if (!times.length) return;
+                const timers = times.map(time =>
+                        setTimeout(() => triggerReminder(todo), time - now));
+                reminderTimers.set(todo.id, timers);
+            });
+        }
+
+        function triggerReminder(todo) {
+            const message = `别忘了处理：${todo.title}${todo.dueDate ? `（截止 ${todo.dueDate}）` : ''}`;
+            showReminderToast(message);
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('待办提醒', {
+                    body: message,
+                    tag: `todo-${todo.id}`
+                });
+            } else {
+                showFeedback(message, 'success');
+            }
+            playBeep();
+            setTimeout(loadTodos, 2000);
+        }
+
+        function initNotification() {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        function showReminderToast(message) {
+            reminderToast.textContent = message;
+            reminderToast.classList.add('show');
+            setTimeout(() => reminderToast.classList.remove('show'), 6000);
+        }
+
+        function playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = ctx.createOscillator();
+                const gain = ctx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 660;
+                gain.gain.value = 0.1;
+                oscillator.connect(gain);
+                gain.connect(ctx.destination);
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.stop();
+                    ctx.close();
+                }, 400);
+            } catch (err) {
+                console.warn('无法播放提示音', err);
+            }
+        }
+
+        function describeRecurrence(todo) {
+            const recurrence = todo.recurrence || 'NONE';
+            if (recurrence === 'NONE') {
+                const offsets = todo.reminderOffsetsMinutes || [];
+                return offsets.length
+                        ? `基准前 ${offsets.join('/')} 分钟`
+                        : '单次提醒';
+            }
+            if (recurrence === 'INTERVAL') {
+                return `循环每 ${todo.recurrenceIntervalMinutes || '--'} 分钟`;
+            }
+            if (recurrence === 'DAILY') {
+                return `每天 ${formatTimeString(todo.recurrenceTime)}`;
+            }
+            if (recurrence === 'WEEKLY') {
+                return `${translateWeekday(todo.recurrenceDayOfWeek)} ${formatTimeString(todo.recurrenceTime)}`;
+            }
+            return '单次提醒';
+        }
+
+        function translateWeekday(day) {
+            const map = {
+                MONDAY: '周一',
+                TUESDAY: '周二',
+                WEDNESDAY: '周三',
+                THURSDAY: '周四',
+                FRIDAY: '周五',
+                SATURDAY: '周六',
+                SUNDAY: '周日'
+            };
+            return map[day] || '--';
+        }
+
+        function formatTimeString(value) {
+            if (!value) return '--';
+            return value.slice(0, 5);
+        }
+
+        function collectReminderTimes(todo, now, limit) {
+            const times = [];
+            if (todo.reminderAt) {
+                const base = Date.parse(todo.reminderAt);
+                if (!Number.isNaN(base)) {
+                    if (base > now && base <= limit) times.push(base);
+                    (todo.reminderOffsetsMinutes || []).forEach(offset => {
+                        const t = base - offset * 60000;
+                        if (t > now && t <= limit) times.push(t);
+                    });
+                }
+            }
+            if (todo.recurrence && todo.recurrence !== 'NONE') {
+                const next = computeNextRecurrence(todo, now);
+                if (next && next > now && next <= limit) {
+                    times.push(next);
+                }
+            }
+            times.sort((a, b) => a - b);
+            return times;
+        }
+
+        function computeNextRecurrence(todo, now) {
+            if (!todo.recurrence || todo.recurrence === 'NONE') return null;
+            if (todo.recurrence === 'INTERVAL') {
+                if (!todo.reminderAt || !todo.recurrenceIntervalMinutes) return null;
+                const start = Date.parse(todo.reminderAt);
+                if (Number.isNaN(start)) return null;
+                const intervalMs = todo.recurrenceIntervalMinutes * 60000;
+                if (intervalMs <= 0) return null;
+                if (start > now) return start;
+                const elapsed = now - start;
+                const steps = Math.floor(elapsed / intervalMs) + 1;
+                return start + steps * intervalMs;
+            }
+            if (!todo.recurrenceTime) return null;
+            const reference = new Date(now);
+            const [hour, minute] = todo.recurrenceTime.split(':').map(Number);
+            const candidate = new Date(reference);
+            candidate.setHours(hour ?? 0, minute ?? 0, 0, 0);
+            if (todo.recurrence === 'DAILY') {
+                if (candidate.getTime() <= now) {
+                    candidate.setDate(candidate.getDate() + 1);
+                }
+                return candidate.getTime();
+            }
+            if (todo.recurrence === 'WEEKLY' && todo.recurrenceDayOfWeek) {
+                const target = weekdayToIndex(todo.recurrenceDayOfWeek);
+                let diff = target - candidate.getDay();
+                if (diff < 0) diff += 7;
+                if (diff === 0 && candidate.getTime() <= now) diff = 7;
+                candidate.setDate(candidate.getDate() + diff);
+                return candidate.getTime();
+            }
+            return null;
+        }
+
+        function weekdayToIndex(day) {
+            const map = {
+                SUNDAY: 0,
+                MONDAY: 1,
+                TUESDAY: 2,
+                WEDNESDAY: 3,
+                THURSDAY: 4,
+                FRIDAY: 5,
+                SATURDAY: 6
+            };
+            return map[day] ?? 0;
+        }
+
+        function toggleReminderSection() {
+            reminderSection.classList.toggle('hidden', !enableReminder.checked);
+        }
+
+        function selectReminderMode(mode) {
+            reminderMode = mode;
+            reminderModeButtons.forEach(btn =>
+                btn.classList.toggle('active', btn.dataset.reminderMode === mode));
+            modeFields.forEach(field => {
+                const modes = (field.dataset.modeFields || '').split(' ');
+                field.classList.toggle('hidden', !modes.includes(mode));
+            });
+            if (mode !== 'weekly') {
+                recurrenceDay.value = '';
+            }
+            if (mode === 'single') {
+                intervalInput.value = '';
+                recurrenceTimeInput.value = '';
+            }
+        }
+
+        function toggleOffset(button) {
+            const value = parseInt(button.dataset.offset, 10);
+            if (selectedOffsets.has(value)) {
+                selectedOffsets.delete(value);
+                button.classList.remove('active');
+            } else {
+                selectedOffsets.add(value);
+                button.classList.add('active');
+            }
+        }
+
+        function addCustomOffset() {
+            const value = parseInt(customOffsetInput.value, 10);
+            if (Number.isNaN(value) || value < 0) {
+                showFeedback('请输入非负的分钟数', 'error');
+                return;
+            }
+            if (selectedOffsets.has(value)) {
+                customOffsetInput.value = '';
+                return;
+            }
+            selectedOffsets.add(value);
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'chip custom active';
+            chip.dataset.offset = value;
+            chip.textContent = `自定义 ${value} 分钟`;
+            chip.addEventListener('click', () => {
+                selectedOffsets.delete(value);
+                chip.remove();
+            });
+            customOffsetsContainer.appendChild(chip);
+            customOffsetInput.value = '';
+        }
+
+        function resetReminderUI() {
+            enableReminder.checked = false;
+            toggleReminderSection();
+            selectedOffsets.clear();
+            presetOffsetButtons.forEach(btn => btn.classList.remove('active'));
+            customOffsetsContainer.innerHTML = '';
+            customOffsetInput.value = '';
+            reminderInput.value = '';
+            intervalInput.value = '';
+            recurrenceDay.value = '';
+            recurrenceTimeInput.value = '';
+            selectReminderMode('single');
+        }
+
+        function buildReminderPayload() {
+            if (!enableReminder.checked) {
+                selectedOffsets.clear();
+                return {
+                    reminderAt: null,
+                    reminderOffsetsMinutes: [],
+                    recurrence: 'NONE',
+                    recurrenceIntervalMinutes: null,
+                    recurrenceDayOfWeek: null,
+                    recurrenceTime: null
+                };
+            }
+            if (!reminderInput.value) {
+                showFeedback('请先设置提醒时间', 'error');
+                return null;
+            }
+            const reminderAt = new Date(reminderInput.value).toISOString();
+            const offsets = Array.from(selectedOffsets).sort((a, b) => a - b);
+
+            if (reminderMode === 'interval') {
+                const interval = parseInt(intervalInput.value, 10);
+                if (Number.isNaN(interval) || interval <= 0) {
+                    showFeedback('循环提醒需要有效的分钟间隔', 'error');
+                    return null;
+                }
+                return {
+                    reminderAt,
+                    reminderOffsetsMinutes: offsets,
+                    recurrence: 'INTERVAL',
+                    recurrenceIntervalMinutes: interval
+                };
+            }
+            if (reminderMode === 'daily') {
+                if (!recurrenceTimeInput.value) {
+                    showFeedback('请选择每天提醒的时间', 'error');
+                    return null;
+                }
+                return {
+                    reminderAt,
+                    reminderOffsetsMinutes: offsets,
+                    recurrence: 'DAILY',
+                    recurrenceTime: recurrenceTimeInput.value
+                };
+            }
+            if (reminderMode === 'weekly') {
+                if (!recurrenceDay.value || !recurrenceTimeInput.value) {
+                    showFeedback('请选择每周的星期与时间', 'error');
+                    return null;
+                }
+                return {
+                    reminderAt,
+                    reminderOffsetsMinutes: offsets,
+                    recurrence: 'WEEKLY',
+                    recurrenceDayOfWeek: recurrenceDay.value,
+                    recurrenceTime: recurrenceTimeInput.value
+                };
+            }
+            return {
+                reminderAt,
+                reminderOffsetsMinutes: offsets,
+                recurrence: 'NONE'
+            };
+        }
+
+        const descTooltip = document.getElementById('descTooltip');
+
+        function handleDescEnter(event) {
+            descTooltip.textContent = event.currentTarget.dataset.description || '';
+            descTooltip.classList.add('show');
+            positionDescTooltip(event);
+        }
+
+        function handleDescMove(event) {
+            positionDescTooltip(event);
+        }
+
+        function handleDescLeave() {
+            descTooltip.classList.remove('show');
+        }
+
+        function positionDescTooltip(event) {
+            const padding = 16;
+            const tooltipRect = descTooltip.getBoundingClientRect();
+            let x = event.clientX + padding;
+            let y = event.clientY + padding;
+            if (x + tooltipRect.width > window.innerWidth) {
+                x = event.clientX - tooltipRect.width - padding;
+            }
+            if (y + tooltipRect.height > window.innerHeight) {
+                y = event.clientY - tooltipRect.height - padding;
+            }
+            descTooltip.style.left = `${x}px`;
+            descTooltip.style.top = `${y}px`;
+        }
+
+        // 初始化
+        resetReminderUI();
+        initNotification();
+        loadCategories();
+        loadTodos();
+    </script>
+</body>
+</html>
+
